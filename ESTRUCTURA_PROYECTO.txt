@@ -1,0 +1,296 @@
+📁 ESTRUCTURA DEL PROYECTO
+═══════════════════════════════════════════════════════════════
+
+proyecto-compatibilidad-emocional/
+│
+├── 📄 README.md                      # Descripción general del proyecto
+├── 📄 INSTRUCCIONES.md               # Guía de instalación y ejecución
+├── 📄 CONCEPTOS_IA.md                # Explicación detallada de técnicas de IA
+├── 📄 EJEMPLOS_USO.md                # Casos de prueba y ejemplos
+├── 📄 RESUMEN_PROYECTO.md            # Resumen ejecutivo
+├── 📄 ESTRUCTURA_PROYECTO.txt        # Este archivo
+├── 📄 .gitignore                     # Archivos a ignorar en Git
+├── 🔧 start.sh                       # Script de inicio (Linux/Mac)
+├── 🔧 start.bat                      # Script de inicio (Windows)
+│
+├── 📁 backend/                       # Backend en Python
+│   ├── 📄 main.py                    # Servidor FastAPI principal
+│   ├── 📄 requirements.txt           # Dependencias Python
+│   ├── 📄 test_example.py            # Script de prueba con ejemplos
+│   │
+│   └── 📁 core/                      # Módulos de lógica de IA
+│       ├── 📄 __init__.py            # Inicializador del paquete
+│       ├── 📄 fuzzy.py               # Lógica difusa
+│       ├── 📄 probabilistic.py       # Modelo Bayesiano
+│       └── 📄 analyzer.py            # Análisis y visualización
+│
+└── 📁 frontend/                      # Frontend en HTML/CSS/JS
+    ├── 📄 index.html                 # Interfaz de usuario
+    ├── 📄 styles.css                 # Estilos CSS
+    └── 📄 app.js                     # Lógica JavaScript
+
+
+═══════════════════════════════════════════════════════════════
+📋 DESCRIPCIÓN DE ARCHIVOS PRINCIPALES
+═══════════════════════════════════════════════════════════════
+
+BACKEND
+───────
+
+📄 main.py (150 líneas)
+   • Servidor FastAPI
+   • Endpoint POST /api/compatibilidad
+   • Validación de datos con Pydantic
+   • Orquestación de módulos de IA
+   • Configuración CORS
+
+📄 core/fuzzy.py (120 líneas)
+   • Clase FuzzyCompatibility
+   • 4 funciones de membresía (triangular/trapezoidal)
+   • Fuzzificación de diferencias
+   • Aplicación de reglas difusas
+   • Defuzzificación (centroide ponderado)
+   • Cálculo de compatibilidad por dimensión
+   • Cálculo global con pesos
+
+📄 core/probabilistic.py (100 líneas)
+   • Clase BayesianAdjuster
+   • Cálculo de consistencia (varianza)
+   • Determinación de likelihood
+   • Actualización Bayesiana clásica
+   • Ajuste final del score
+
+📄 core/analyzer.py (150 líneas)
+   • Clase CompatibilityAnalyzer
+   • Clasificación de compatibilidad (5 niveles)
+   • Identificación de fortalezas/debilidades con Pandas
+   • Generación de recomendaciones personalizadas
+   • Preparación de datos para visualización
+
+📄 test_example.py (120 líneas)
+   • Script de demostración
+   • Ejemplo paso a paso del cálculo
+   • Muestra lógica difusa, Bayesiana y análisis
+   • Útil para entender el flujo completo
+
+FRONTEND
+────────
+
+📄 index.html (200 líneas)
+   • Formulario con 8 preguntas × 2 personas
+   • Sliders interactivos (0-10)
+   • Sección de resultados con gráficos
+   • Canvas para Chart.js
+   • Diseño responsive
+
+📄 styles.css (200 líneas)
+   • Diseño moderno con gradientes
+   • CSS Grid para layout
+   • Estilos para sliders personalizados
+   • Animaciones y transiciones
+   • Media queries para móviles
+
+📄 app.js (150 líneas)
+   • Actualización de valores de sliders
+   • Envío de datos al backend (Fetch API)
+   • Procesamiento de respuesta JSON
+   • Creación de gráficos (Chart.js)
+   • Renderizado de resultados
+
+DOCUMENTACIÓN
+─────────────
+
+📄 README.md
+   • Descripción general
+   • Características
+   • Arquitectura
+   • Instalación y ejecución
+   • Ejemplo de uso del API
+   • Tecnologías utilizadas
+
+📄 INSTRUCCIONES.md
+   • Guía paso a paso
+   • Instalación de dependencias
+   • Ejecución del backend
+   • Apertura del frontend
+   • Solución de problemas
+   • Compatibilidad
+
+📄 CONCEPTOS_IA.md
+   • Explicación de lógica difusa
+   • Funciones de membresía (con gráficos ASCII)
+   • Modelo Bayesiano (fórmulas)
+   • Análisis con Pandas
+   • Visualización de datos
+   • Extensión con redes neuronales
+   • Referencias bibliográficas
+
+📄 EJEMPLOS_USO.md
+   • 4 casos de prueba detallados
+   • Ejemplos con cURL
+   • Script Python de prueba
+   • Interpretación de resultados
+   • Análisis de sensibilidad
+   • Preguntas frecuentes
+
+📄 RESUMEN_PROYECTO.md
+   • Resumen ejecutivo
+   • Arquitectura completa
+   • Flujo de procesamiento
+   • Ejemplo de cálculo
+   • Métricas del proyecto
+   • Extensiones futuras
+
+
+═══════════════════════════════════════════════════════════════
+🔄 FLUJO DE DATOS
+═══════════════════════════════════════════════════════════════
+
+1. Usuario → frontend/index.html
+   └─ Ajusta sliders (8 dimensiones × 2 personas)
+
+2. frontend/app.js
+   └─ Recopila datos del formulario
+   └─ Envía POST a http://localhost:8000/api/compatibilidad
+
+3. backend/main.py
+   └─ Recibe y valida JSON
+   └─ Convierte a diccionarios Python
+
+4. backend/core/fuzzy.py
+   └─ Calcula diferencias absolutas
+   └─ Fuzzifica cada diferencia
+   └─ Aplica reglas difusas
+   └─ Defuzzifica a scores por dimensión
+   └─ Calcula score global ponderado
+
+5. backend/core/probabilistic.py
+   └─ Calcula consistencia (varianza)
+   └─ Determina likelihood
+   └─ Aplica actualización Bayesiana
+   └─ Ajusta score final
+
+6. backend/core/analyzer.py
+   └─ Clasifica nivel de compatibilidad
+   └─ Identifica fortalezas/debilidades (Pandas)
+   └─ Genera recomendaciones
+   └─ Prepara datos para gráficos
+
+7. backend/main.py
+   └─ Retorna JSON con resultados
+
+8. frontend/app.js
+   └─ Procesa respuesta
+   └─ Crea gráficos (Chart.js)
+   └─ Renderiza resultados
+
+9. Usuario ← frontend/index.html
+   └─ Ve compatibilidad, gráficos y recomendaciones
+
+
+═══════════════════════════════════════════════════════════════
+📊 ESTADÍSTICAS DEL PROYECTO
+═══════════════════════════════════════════════════════════════
+
+Líneas de código:
+  • Backend Python:     ~520 líneas
+  • Frontend JS/HTML:   ~550 líneas
+  • Documentación:      ~2000 líneas
+  • Total:              ~3070 líneas
+
+Archivos:
+  • Python:             5 archivos
+  • Frontend:           3 archivos
+  • Documentación:      6 archivos
+  • Configuración:      4 archivos
+  • Total:              18 archivos
+
+Técnicas de IA:
+  • Lógica Difusa:      4 funciones de membresía
+  • Reglas Difusas:     4 reglas
+  • Modelo Bayesiano:   1 implementación
+  • Análisis Pandas:    3 funciones
+  • Visualización:      2 tipos de gráficos
+
+Dimensiones:
+  • Evaluadas:          8 dimensiones
+  • Con peso alto:      2 (comunicación, valores)
+  • Con peso medio:     4 (conflicto, intimidad, metas, apoyo)
+  • Con peso normal:    2 (estilo emocional, tiempo)
+
+
+═══════════════════════════════════════════════════════════════
+🚀 INICIO RÁPIDO
+═══════════════════════════════════════════════════════════════
+
+Windows:
+  1. Doble clic en start.bat
+  2. Espera a que se instalen las dependencias
+  3. El navegador se abrirá automáticamente
+
+Linux/Mac:
+  1. chmod +x start.sh
+  2. ./start.sh
+  3. El navegador se abrirá automáticamente
+
+Manual:
+  1. cd backend
+  2. pip install -r requirements.txt
+  3. uvicorn main:app --reload
+  4. Abrir frontend/index.html en el navegador
+
+
+═══════════════════════════════════════════════════════════════
+🎓 CONCEPTOS EDUCATIVOS CUBIERTOS
+═══════════════════════════════════════════════════════════════
+
+✅ Lógica Difusa
+   • Funciones de membresía
+   • Fuzzificación
+   • Reglas difusas
+   • Defuzzificación
+
+✅ Modelos Probabilísticos
+   • Teorema de Bayes
+   • Prior, Likelihood, Posterior
+   • Inferencia Bayesiana
+   • Manejo de incertidumbre
+
+✅ Análisis de Datos
+   • Pandas DataFrames
+   • Estadísticas descriptivas
+   • Identificación de patrones
+   • Visualización
+
+✅ Desarrollo Web
+   • API REST con FastAPI
+   • Frontend interactivo
+   • Comunicación asíncrona
+   • Visualización con Chart.js
+
+✅ Buenas Prácticas
+   • Código modular
+   • Documentación completa
+   • Validación de datos
+   • Manejo de errores
+
+
+═══════════════════════════════════════════════════════════════
+📞 SOPORTE
+═══════════════════════════════════════════════════════════════
+
+Problemas comunes:
+  • Ver INSTRUCCIONES.md sección "Solución de Problemas"
+  • Ejecutar test_example.py para verificar funcionamiento
+  • Revisar EJEMPLOS_USO.md para casos de prueba
+
+Documentación:
+  • README.md: Visión general
+  • CONCEPTOS_IA.md: Detalles técnicos de IA
+  • EJEMPLOS_USO.md: Casos prácticos
+
+
+═══════════════════════════════════════════════════════════════
+
+Proyecto desarrollado como demostración educativa de IA aplicada
+Versión: 1.0 | Tecnologías: Python, FastAPI, JavaScript, Chart.js
