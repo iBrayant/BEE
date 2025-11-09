@@ -1,5 +1,7 @@
 // Configuración de la API
-const API_URL = 'http://localhost:8000/api/compatibilidad';
+const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:8000/api/compatibilidad'
+    : '/api/compatibilidad';
 
 // Crear corazones flotantes
 function createFloatingHearts() {
