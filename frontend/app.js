@@ -1,7 +1,11 @@
 // Configuración de la API
-const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:8000/api/compatibilidad'
+const API_URL = (window.location.hostname === 'localhost' || window.location.protocol === 'file:')
+    ? 'http://127.0.0.1:8000/api/compatibilidad'
     : '/api/compatibilidad';
+
+// Variables globales para los gráficos
+let radarChart = null;
+let barChart = null;
 
 // Crear corazones flotantes
 function createFloatingHearts() {
@@ -24,34 +28,221 @@ function createFloatingHearts() {
     }, 3000);
 }
 
+// Estado del formulario
+let personaActual = 'A';
+let datosPersonaA = {};
+
 // Funciones de navegación
 function mostrarFormulario() {
     document.getElementById('home-section').style.display = 'none';
     document.getElementById('formulario-section').style.display = 'block';
+    personaActual = 'A';
+    datosPersonaA = {};
+    mostrarPersonaA();
     window.scrollTo(0, 0);
 }
 
 function volverInicio() {
+    // Destruir gráficos si existen
+    if (radarChart) {
+        radarChart.destroy();
+        radarChart = null;
+    }
+    if (barChart) {
+        barChart.destroy();
+        barChart = null;
+    }
+    
     document.getElementById('home-section').style.display = 'block';
     document.getElementById('formulario-section').style.display = 'none';
     document.getElementById('resultados-section').style.display = 'none';
+    personaActual = 'A';
+    datosPersonaA = {};
     window.scrollTo(0, 0);
+}
+
+function mostrarPersonaA() {
+    personaActual = 'A';
+    document.getElementById('form-description').textContent = 'Persona 1: Responde usando la escala de 0 a 10';
+    document.getElementById('btn-continuar').style.display = 'inline-flex';
+    document.getElementById('btn-calcular').style.display = 'none';
+    
+    const container = document.getElementById('personas-container');
+    container.innerHTML = generarFormularioPersona('A', 'Persona 1');
+    
+    // Reinicializar sliders
+    inicializarSliders();
+}
+
+function continuarPersonaB() {
+    // Guardar datos de Persona A
+    const form = document.getElementById('compatibility-form');
+    const formData = new FormData(form);
+    
+    datosPersonaA = {
+        comunicacion: parseFloat(formData.get('a_comunicacion')),
+        valores: parseFloat(formData.get('a_valores')),
+        conflicto: parseFloat(formData.get('a_conflicto')),
+        estilo_emocional: parseFloat(formData.get('a_estilo_emocional')),
+        tiempo_compartido: parseFloat(formData.get('a_tiempo_compartido')),
+        intimidad: parseFloat(formData.get('a_intimidad')),
+        metas_futuro: parseFloat(formData.get('a_metas_futuro')),
+        apoyo_mutuo: parseFloat(formData.get('a_apoyo_mutuo'))
+    };
+    
+    console.log('✅ Persona 1 completada. Datos guardados:', datosPersonaA);
+    console.log('➡️ Pasando a Persona 2...');
+    
+    // Mostrar formulario de Persona B
+    mostrarPersonaB();
+}
+
+function mostrarPersonaB() {
+    personaActual = 'B';
+    document.getElementById('form-description').textContent = 'Persona 2: Responde usando la escala de 0 a 10';
+    document.getElementById('btn-continuar').style.display = 'none';
+    document.getElementById('btn-calcular').style.display = 'inline-flex';
+    
+    const container = document.getElementById('personas-container');
+    container.innerHTML = generarFormularioPersona('B', 'Persona 2');
+    
+    // Reinicializar sliders
+    inicializarSliders();
+    window.scrollTo(0, 0);
+}
+
+function generarFormularioPersona(letra, titulo) {
+    const prefix = letra.toLowerCase();
+    return `
+        <div class="persona-card" style="grid-column: 1 / -1; max-width: 800px; margin: 0 auto;">
+            <h3>${titulo}</h3>
+            <div class="question-group">
+                <label>
+                    <svg class="question-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Comunicación: Valoro la comunicación abierta y frecuente
+                </label>
+                <div class="slider-container">
+                    <input type="range" name="${prefix}_comunicacion" min="0" max="10" value="5" class="slider">
+                    <span class="value-display">5</span>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <label>
+                    <svg class="question-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    Valores: Mis valores fundamentales son muy importantes para mí
+                </label>
+                <div class="slider-container">
+                    <input type="range" name="${prefix}_valores" min="0" max="10" value="5" class="slider">
+                    <span class="value-display">5</span>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <label>
+                    <svg class="question-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 8v4M12 16h.01"/>
+                    </svg>
+                    Conflictos: Prefiero resolver conflictos de inmediato
+                </label>
+                <div class="slider-container">
+                    <input type="range" name="${prefix}_conflicto" min="0" max="10" value="5" class="slider">
+                    <span class="value-display">5</span>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <label>
+                    <svg class="question-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>
+                    </svg>
+                    Estilo Emocional: Expreso mis emociones abiertamente
+                </label>
+                <div class="slider-container">
+                    <input type="range" name="${prefix}_estilo_emocional" min="0" max="10" value="5" class="slider">
+                    <span class="value-display">5</span>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <label>
+                    <svg class="question-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                    Tiempo Compartido: Me gusta pasar mucho tiempo con mi pareja
+                </label>
+                <div class="slider-container">
+                    <input type="range" name="${prefix}_tiempo_compartido" min="0" max="10" value="5" class="slider">
+                    <span class="value-display">5</span>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <label>
+                    <svg class="question-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    Intimidad: La cercanía física es muy importante para mí
+                </label>
+                <div class="slider-container">
+                    <input type="range" name="${prefix}_intimidad" min="0" max="10" value="5" class="slider">
+                    <span class="value-display">5</span>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <label>
+                    <svg class="question-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Metas a Futuro: Tengo metas claras para mi futuro
+                </label>
+                <div class="slider-container">
+                    <input type="range" name="${prefix}_metas_futuro" min="0" max="10" value="5" class="slider">
+                    <span class="value-display">5</span>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <label>
+                    <svg class="question-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    Apoyo Mutuo: Necesito apoyo constante de mi pareja
+                </label>
+                <div class="slider-container">
+                    <input type="range" name="${prefix}_apoyo_mutuo" min="0" max="10" value="5" class="slider">
+                    <span class="value-display">5</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function inicializarSliders() {
+    const sliders = document.querySelectorAll('.slider');
+    sliders.forEach(slider => {
+        const valueDisplay = slider.nextElementSibling;
+        slider.addEventListener('input', (e) => {
+            valueDisplay.textContent = e.target.value;
+        });
+    });
 }
 
 // Actualizar valores de sliders en tiempo real
 document.addEventListener('DOMContentLoaded', () => {
     // Iniciar animación de corazones
     createFloatingHearts();
-    
-    const sliders = document.querySelectorAll('.slider');
-    
-    sliders.forEach(slider => {
-        const valueDisplay = slider.nextElementSibling;
-        
-        slider.addEventListener('input', (e) => {
-            valueDisplay.textContent = e.target.value;
-        });
-    });
     
     // Manejar envío del formulario
     const form = document.getElementById('compatibility-form');
@@ -61,36 +252,40 @@ document.addEventListener('DOMContentLoaded', () => {
 async function handleSubmit(e) {
     e.preventDefault();
     
-    // Recopilar datos del formulario
+    console.log('=== 🚀 INICIANDO CÁLCULO DE COMPATIBILIDAD ===');
+    
+    // Recopilar datos de Persona B
     const formData = new FormData(e.target);
-    const data = {
-        persona_a: {
-            comunicacion: parseFloat(formData.get('a_comunicacion')),
-            valores: parseFloat(formData.get('a_valores')),
-            conflicto: parseFloat(formData.get('a_conflicto')),
-            estilo_emocional: parseFloat(formData.get('a_estilo_emocional')),
-            tiempo_compartido: parseFloat(formData.get('a_tiempo_compartido')),
-            intimidad: parseFloat(formData.get('a_intimidad')),
-            metas_futuro: parseFloat(formData.get('a_metas_futuro')),
-            apoyo_mutuo: parseFloat(formData.get('a_apoyo_mutuo'))
-        },
-        persona_b: {
-            comunicacion: parseFloat(formData.get('b_comunicacion')),
-            valores: parseFloat(formData.get('b_valores')),
-            conflicto: parseFloat(formData.get('b_conflicto')),
-            estilo_emocional: parseFloat(formData.get('b_estilo_emocional')),
-            tiempo_compartido: parseFloat(formData.get('b_tiempo_compartido')),
-            intimidad: parseFloat(formData.get('b_intimidad')),
-            metas_futuro: parseFloat(formData.get('b_metas_futuro')),
-            apoyo_mutuo: parseFloat(formData.get('b_apoyo_mutuo'))
-        }
+    const datosPersonaB = {
+        comunicacion: parseFloat(formData.get('b_comunicacion')),
+        valores: parseFloat(formData.get('b_valores')),
+        conflicto: parseFloat(formData.get('b_conflicto')),
+        estilo_emocional: parseFloat(formData.get('b_estilo_emocional')),
+        tiempo_compartido: parseFloat(formData.get('b_tiempo_compartido')),
+        intimidad: parseFloat(formData.get('b_intimidad')),
+        metas_futuro: parseFloat(formData.get('b_metas_futuro')),
+        apoyo_mutuo: parseFloat(formData.get('b_apoyo_mutuo'))
     };
+    
+    // Combinar datos de ambas personas
+    const data = {
+        persona_a: datosPersonaA,
+        persona_b: datosPersonaB
+    };
+    
+    console.log('📊 Datos Persona 1:', datosPersonaA);
+    console.log('📊 Datos Persona 2:', datosPersonaB);
     
     // Mostrar loading
     document.getElementById('formulario-section').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
     
     try {
+        console.log('🌐 Enviando petición a:', API_URL);
+        console.log('📤 Payload:', JSON.stringify(data, null, 2));
+        
+        const startTime = performance.now();
+        
         // Enviar petición al backend
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -100,17 +295,31 @@ async function handleSubmit(e) {
             body: JSON.stringify(data)
         });
         
+        const endTime = performance.now();
+        console.log(`⏱️ Tiempo de respuesta: ${(endTime - startTime).toFixed(2)}ms`);
+        
         if (!response.ok) {
+            console.error('❌ Error HTTP:', response.status, response.statusText);
             throw new Error('Error en la respuesta del servidor');
         }
         
         const resultado = await response.json();
+        console.log('✅ Respuesta recibida del backend:');
+        console.log('📈 Compatibilidad:', resultado.compatibilidad_porcentaje + '%');
+        console.log('🎯 Clasificación:', resultado.analisis.clasificacion);
+        console.log('💪 Fortalezas:', resultado.analisis.fortalezas);
+        console.log('📉 Áreas de mejora:', resultado.analisis.areas_mejora);
+        console.log('💡 Recomendaciones:', resultado.analisis.recomendaciones);
+        console.log('📊 Datos completos:', resultado);
         
         // Mostrar resultados
         mostrarResultados(resultado);
         
+        console.log('=== ✨ CÁLCULO COMPLETADO ===');
+        
     } catch (error) {
-        console.error('Error:', error);
+        console.error('❌ ERROR:', error);
+        console.error('Stack trace:', error.stack);
         alert('Error al calcular compatibilidad. Asegúrate de que el backend esté ejecutándose.');
         document.getElementById('loading').style.display = 'none';
         document.getElementById('formulario-section').style.display = 'block';
@@ -171,34 +380,43 @@ function mostrarResultados(resultado) {
 }
 
 function crearGraficoRadar(data) {
+    // Destruir gráfico anterior si existe
+    if (radarChart) {
+        radarChart.destroy();
+    }
+    
     const ctx = document.getElementById('radarChart').getContext('2d');
     
-    new Chart(ctx, {
+    radarChart = new Chart(ctx, {
         type: 'radar',
         data: {
             labels: data.labels,
             datasets: [
                 {
-                    label: 'Persona A',
+                    label: 'Persona 1',
                     data: data.persona_a,
-                    borderColor: 'rgb(255, 107, 157)',
-                    backgroundColor: 'rgba(255, 107, 157, 0.15)',
-                    pointBackgroundColor: 'rgb(255, 107, 157)',
+                    borderColor: 'rgb(255, 20, 147)',
+                    backgroundColor: 'rgba(255, 20, 147, 0.25)',
+                    pointBackgroundColor: 'rgb(255, 20, 147)',
                     pointBorderColor: '#fff',
                     pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(255, 107, 157)',
-                    borderWidth: 2
+                    pointHoverBorderColor: 'rgb(255, 20, 147)',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    borderWidth: 3
                 },
                 {
-                    label: 'Persona B',
+                    label: 'Persona 2',
                     data: data.persona_b,
-                    borderColor: 'rgb(255, 193, 227)',
-                    backgroundColor: 'rgba(255, 193, 227, 0.15)',
-                    pointBackgroundColor: 'rgb(255, 193, 227)',
+                    borderColor: 'rgb(138, 43, 226)',
+                    backgroundColor: 'rgba(138, 43, 226, 0.25)',
+                    pointBackgroundColor: 'rgb(138, 43, 226)',
                     pointBorderColor: '#fff',
                     pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(255, 193, 227)',
-                    borderWidth: 2
+                    pointHoverBorderColor: 'rgb(138, 43, 226)',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    borderWidth: 3
                 }
             ]
         },
@@ -216,9 +434,10 @@ function crearGraficoRadar(data) {
                         color: 'rgba(255, 107, 157, 0.1)'
                     },
                     pointLabels: {
-                        color: '#ffc1e3',
+                        color: '#2d3748',
                         font: {
-                            size: 12,
+                            size: 13,
+                            weight: '600',
                             family: 'Poppins'
                         }
                     },
@@ -231,23 +450,33 @@ function crearGraficoRadar(data) {
                 legend: {
                     position: 'top',
                     labels: {
-                        color: '#ffc1e3',
+                        color: '#2d3748',
                         font: {
                             size: 14,
+                            weight: '600',
                             family: 'Poppins'
                         },
-                        padding: 15
+                        padding: 15,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
                     }
                 }
-            }
+            },
+            responsive: true,
+            maintainAspectRatio: true
         }
     });
 }
 
 function crearGraficoBarras(data) {
+    // Destruir gráfico anterior si existe
+    if (barChart) {
+        barChart.destroy();
+    }
+    
     const ctx = document.getElementById('barChart').getContext('2d');
     
-    new Chart(ctx, {
+    barChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: data.labels,

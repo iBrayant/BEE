@@ -149,6 +149,15 @@ body::before {
     letter-spacing: 1px;
 }
 
+.hero-tagline {
+    font-size: 1.8em;
+    font-weight: 500;
+    color: #ff6b9d;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
 /* FEATURES */
 .features {
     display: grid;
@@ -446,7 +455,7 @@ body::before {
 
 .personas-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 30px;
     margin-bottom: 40px;
 }

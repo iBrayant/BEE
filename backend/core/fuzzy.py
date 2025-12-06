@@ -99,14 +99,29 @@ class FuzzyCompatibility:
             "muy_diferente": 10
         }
         
+        print(f"      Aplicando reglas difusas (defuzzificación):")
+        
         # Defuzzificación usando promedio ponderado (método del centroide simplificado)
+        calculos = []
+        for key in memberships:
+            contribucion = memberships[key] * outputs[key]
+            calculos.append(f"{memberships[key]:.3f} × {outputs[key]} = {contribucion:.2f}")
+            print(f"         {key:15s}: {memberships[key]:.3f} × {outputs[key]:3d}% = {contribucion:.2f}")
+        
         numerador = sum(memberships[key] * outputs[key] for key in memberships)
         denominador = sum(memberships.values())
         
+        print(f"      Numerador (suma ponderada):   {numerador:.2f}")
+        print(f"      Denominador (suma membresías): {denominador:.3f}")
+        
         if denominador == 0:
+            print(f"      ⚠️  Sin activación, usando valor neutral: 50.0%")
             return 50.0  # Valor neutral si no hay activación
         
-        return numerador / denominador
+        resultado = numerador / denominador
+        print(f"      Resultado: {numerador:.2f} ÷ {denominador:.3f} = {resultado:.2f}%")
+        
+        return resultado
     
     def calculate_dimension_compatibility(self, persona_a: Dict, persona_b: Dict) -> Dict[str, float]:
         """
@@ -115,17 +130,34 @@ class FuzzyCompatibility:
         dimensiones = persona_a.keys()
         resultados = {}
         
+        print("\n   📐 CÁLCULO DETALLADO POR DIMENSIÓN:")
+        print("   " + "-"*70)
+        
         for dim in dimensiones:
             # Calcular diferencia absoluta
             diferencia = abs(persona_a[dim] - persona_b[dim])
             
+            print(f"\n   🔹 {dim.upper()}:")
+            print(f"      Persona 1: {persona_a[dim]:.1f} | Persona 2: {persona_b[dim]:.1f}")
+            print(f"      Diferencia absoluta: {diferencia:.2f}")
+            
             # Fuzzificar
             memberships = self.fuzzify_difference(diferencia)
+            
+            print(f"      Grados de membresía (fuzzificación):")
+            print(f"         • Muy Similar:    {memberships['muy_similar']:.3f}")
+            print(f"         • Similar:        {memberships['similar']:.3f}")
+            print(f"         • Diferente:      {memberships['diferente']:.3f}")
+            print(f"         • Muy Diferente:  {memberships['muy_diferente']:.3f}")
             
             # Aplicar reglas y defuzzificar
             compatibilidad = self.apply_fuzzy_rules(memberships)
             
+            print(f"      ➜ Compatibilidad calculada: {compatibilidad:.2f}%")
+            
             resultados[dim] = round(compatibilidad, 2)
+        
+        print("\n   " + "-"*70)
         
         return resultados
     
@@ -148,8 +180,27 @@ class FuzzyCompatibility:
             "apoyo_mutuo": 1.2
         }
         
-        suma_ponderada = sum(dimension_scores[dim] * pesos.get(dim, 1.0) 
-                            for dim in dimension_scores)
-        suma_pesos = sum(pesos.get(dim, 1.0) for dim in dimension_scores)
+        print("\n   🎯 AGREGACIÓN GLOBAL CON PESOS:")
+        print("   " + "-"*70)
         
-        return suma_ponderada / suma_pesos
+        suma_ponderada = 0
+        suma_pesos = 0
+        
+        for dim in dimension_scores:
+            peso = pesos.get(dim, 1.0)
+            score = dimension_scores[dim]
+            contribucion = score * peso
+            suma_ponderada += contribucion
+            suma_pesos += peso
+            
+            print(f"   {dim:20s}: {score:6.2f}% × {peso:.1f} = {contribucion:7.2f}")
+        
+        resultado = suma_ponderada / suma_pesos
+        
+        print("   " + "-"*70)
+        print(f"   Suma ponderada: {suma_ponderada:.2f}")
+        print(f"   Suma de pesos:  {suma_pesos:.2f}")
+        print(f"   Score global:   {suma_ponderada:.2f} ÷ {suma_pesos:.2f} = {resultado:.2f}%")
+        print("   " + "-"*70)
+        
+        return resultado

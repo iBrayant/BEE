@@ -1,0 +1,3 @@
+# Descripción Corta para Formulario (Máx 500 caracteres)
+
+Software de análisis de compatibilidad emocional basado en IA. Procesa respuestas de dos usuarios en 8 dimensiones (comunicación, valores, etc.) mediante algoritmos de Lógica Difusa para evaluar similitud y Modelos Bayesianos para ajustar la consistencia probabilística. Genera un reporte detallado con porcentaje de compatibilidad, gráficos comparativos (radar/barras), identificación de fortalezas, áreas de mejora y recomendaciones personalizadas para la relación.

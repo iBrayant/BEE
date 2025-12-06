@@ -85,13 +85,35 @@ class BayesianAdjuster:
         3. Aplicar actualización Bayesiana
         4. Retornar score ajustado
         """
+        print("\n   🔮 AJUSTE BAYESIANO DETALLADO:")
+        print("   " + "-"*70)
+        
         # 1. Calcular consistencia
         consistency = self.calculate_consistency(dimension_scores)
+        scores = list(dimension_scores.values())
+        std_dev = np.std(scores)
+        
+        print(f"   📊 Análisis de consistencia:")
+        print(f"      Scores por dimensión: {[f'{s:.1f}' for s in scores]}")
+        print(f"      Desviación estándar: {std_dev:.2f}")
+        print(f"      Consistencia calculada: {consistency:.2f}%")
+        print(f"      (Consistencia alta = scores similares entre dimensiones)")
         
         # 2. Calcular likelihood
         obs_std = self.calculate_likelihood(fuzzy_score, consistency)
         
+        print(f"\n   📈 Likelihood (confianza en la observación):")
+        print(f"      Desviación estándar del likelihood: {obs_std:.2f}")
+        print(f"      (Menor valor = mayor confianza)")
+        
         # 3. Actualización Bayesiana
+        print(f"\n   🎲 Actualización Bayesiana:")
+        print(f"      Prior (creencia inicial):")
+        print(f"         • Media: {self.prior_mean:.2f}")
+        print(f"         • Std:   {self.prior_std:.2f}")
+        print(f"      Observación (score difuso): {fuzzy_score:.2f}")
+        print(f"      Likelihood std: {obs_std:.2f}")
+        
         posterior_mean, posterior_std = self.bayesian_update(
             self.prior_mean,
             self.prior_std,
@@ -99,13 +121,25 @@ class BayesianAdjuster:
             obs_std
         )
         
+        print(f"      Posterior (creencia actualizada):")
+        print(f"         • Media: {posterior_mean:.2f}")
+        print(f"         • Std:   {posterior_std:.2f}")
+        
         # 4. El score final es la media posterior
         # Aplicamos un pequeño ajuste adicional basado en consistencia
         consistency_bonus = (consistency - 50) * 0.1  # ±5 puntos máximo
         
+        print(f"\n   ✨ Ajuste por consistencia:")
+        print(f"      Bonus: ({consistency:.2f} - 50) × 0.1 = {consistency_bonus:+.2f}")
+        
         final_score = posterior_mean + consistency_bonus
+        
+        print(f"      Score antes de límites: {final_score:.2f}")
         
         # Asegurar que esté en rango [0, 100]
         final_score = max(0, min(100, final_score))
+        
+        print(f"      Score final ajustado: {final_score:.2f}%")
+        print("   " + "-"*70)
         
         return final_score
